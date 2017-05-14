@@ -1,6 +1,17 @@
 # processoutput4j
 Simple Java library for capturing stdout/stderr of processes launched from within Java.
 
+## Maven
+Add the following artifact to your dependencies of your `pom.xml`:
+
+```
+    <dependency>
+      <groupId>com.github.fracpete</groupId>
+      <artifactId>processoutput4j</artifactId>
+      <version>0.0.1</version>
+    </dependency>
+```
+
 ## Examples
 The following executes the process and outputs any data from stdout/stderr
 once the process has finished:
