@@ -12,6 +12,22 @@ Add the following artifact to your dependencies of your `pom.xml`:
     </dependency>
 ```
 
+## Available schemes
+The following schemes for capturing process output are available:
+* `CollectingProcessOutput` - collects all the output and makes it available
+  once the process has finished
+* `ConsoleOutputProcessOutput` - simply outputs the process' output from
+  stdout and stderr to the Java process' stdout and stderr as it occurrs
+  rather than waiting till the process finishes.
+
+## Extending
+Adding a new scheme for capturing the process output is quite simple. You
+basically need to implement two classes:
+* a *reader* class, derived from `AbstractProcessReader` that does something 
+  with the data obtained from stdout and stderr of the process.
+* an *output* class, derived from `AbstractProcessOutput` that instantiates
+  the appropriate readers for stdout and stderr.
+
 ## Examples
 The following executes the process and outputs any data from stdout/stderr
 once the process has finished:
