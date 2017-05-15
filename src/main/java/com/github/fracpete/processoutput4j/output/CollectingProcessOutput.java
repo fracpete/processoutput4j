@@ -42,42 +42,6 @@ public final class CollectingProcessOutput
   protected StringBuilder m_StdErr;
 
   /**
-   * Starts the monitoring process.
-   *
-   * @param cmd		the command that was used
-   * @param env		the environment
-   * @param input	the input to be written to the process, can be null
-   * @param process	the process to obtain the results from
-   * @throws Exception	if collection of data fails
-   */
-  public CollectingProcessOutput(String cmd, String[] env, String input, Process process) throws Exception {
-    this(new String[] {cmd}, env, input, process);
-  }
-
-  /**
-   * Starts the monitoring process.
-   *
-   * @param cmd		the command that was used
-   * @param env		the environment
-   * @param input	the input to be written to the process, can be null
-   * @param process	the process to obtain the results from
-   * @throws Exception	if collection of data fails
-   */
-  public CollectingProcessOutput(String[] cmd, String[] env, String input, Process process) throws Exception {
-    super(cmd, env, input, process);
-  }
-
-  /**
-   * Starts the monitoring process.
-   *
-   * @param builder	the process to obtain the results from
-   * @throws Exception	if collection of data fails
-   */
-  public CollectingProcessOutput(ProcessBuilder builder) throws Exception {
-    super(builder);
-  }
-
-  /**
    * For initializing the members.
    */
   @Override

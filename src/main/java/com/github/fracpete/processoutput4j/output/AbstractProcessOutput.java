@@ -47,59 +47,78 @@ public abstract class AbstractProcessOutput
 
   /**
    * Starts the monitoring process.
-   *
-   * @param cmd		the command that was used
-   * @param env		the environment
-   * @param input	the input to be written to the process, can be null
-   * @param process	the process to obtain the results from
-   * @throws Exception	if collection of data fails
    */
-  public AbstractProcessOutput(String cmd, String[] env, String input, Process process) throws Exception {
-    this(new String[] {cmd}, env, input, process);
-  }
-
-  /**
-   * Starts the monitoring process.
-   *
-   * @param cmd		the command that was used
-   * @param env		the environment
-   * @param input	the input to be written to the process, can be null
-   * @param process	the process to obtain the results from
-   * @throws Exception	if collection of data fails
-   */
-  public AbstractProcessOutput(String[] cmd, String[] env, String input, Process process) throws Exception {
+  public AbstractProcessOutput() {
     initialize();
-
-    m_Command     = cmd;
-    m_Environment = env;
-
-    monitor(input, process);
-  }
-
-  /**
-   * Starts the monitoring process.
-   *
-   * @param builder	the process to obtain the results from
-   * @throws Exception	if collection of data fails
-   */
-  public AbstractProcessOutput(ProcessBuilder builder) throws Exception {
-    this(builder.command().toArray(new String[0]), null, null, builder.start());
   }
 
   /**
    * For initializing the members.
    */
   protected void initialize() {
+    m_Command     = new String[0];
+    m_Environment = null;
+    m_ExitCode    = 0;
   }
 
   /**
    * Performs the actual process monitoring.
    *
+   * @param builder 	the process builder to monitor
+   * @throws Exception	if writing to stdin fails
+   */
+  public void monitor(ProcessBuilder builder) throws Exception {
+    monitor(null, builder);
+  }
+
+  /**
+   * Performs the actual process monitoring.
+   *
+   * @param builder 	the process builder to monitor
+   * @throws Exception	if writing to stdin fails
+   */
+  public void monitor(String input, ProcessBuilder builder) throws Exception {
+    monitor(builder.command().toArray(new String[0]), null, input, builder.start());
+  }
+
+  /**
+   * Performs the actual process monitoring.
+   *
+   * @param cmd		the command that was used
+   * @param env		the environment
+   * @param process 	the process to monitor
+   * @throws Exception	if writing to stdin fails
+   */
+  public void monitor(String cmd, String[] env, Process process) throws Exception {
+    monitor(cmd, env, null, process);
+  }
+
+  /**
+   * Performs the actual process monitoring.
+   *
+   * @param cmd		the command that was used
+   * @param env		the environment
    * @param input	the input to be written to the process via stdin, ignored if null
    * @param process 	the process to monitor
    * @throws Exception	if writing to stdin fails
    */
-  protected void monitor(String input, Process process) throws Exception {
+  public void monitor(String cmd, String[] env, String input, Process process) throws Exception {
+    monitor(new String[]{cmd}, env, input, process);
+  }
+
+  /**
+   * Performs the actual process monitoring.
+   *
+   * @param cmd		the command that was used
+   * @param env		the environment
+   * @param input	the input to be written to the process via stdin, ignored if null
+   * @param process 	the process to monitor
+   * @throws Exception	if writing to stdin fails
+   */
+  public void monitor(String cmd[], String[] env, String input, Process process) throws Exception {
+    m_Command     = cmd;
+    m_Environment = env;
+
     // stderr
     Thread threade = new Thread(configureStdErr(process));
     threade.start();

@@ -8,7 +8,7 @@ Add the following artifact to your dependencies of your `pom.xml`:
     <dependency>
       <groupId>com.github.fracpete</groupId>
       <artifactId>processoutput4j</artifactId>
-      <version>0.0.1</version>
+      <version>0.0.2</version>
     </dependency>
 ```
 
@@ -37,7 +37,7 @@ import com.github.fracpete.processoutput4j.output.ConsoleOutputProcessOutput;
 String[] cmd = new String[]{"/bin/ls", "-la", "/some/where"};
 ProcessBuilder builder = new ProcessBuilder();
 builder.command(cmd);
-new ConsoleOutputProcessOutput(builder);
+new ConsoleOutputProcessOutput().monitor(builder);
 ```
 
 The following executes the process and outputs any data from stdout/stderr
@@ -48,7 +48,8 @@ import com.github.fracpete.processoutput4j.output.CollectingProcessOutput;
 String[] cmd = new String[]{"/bin/ls", "-la", "/some/where"};
 ProcessBuilder builder = new ProcessBuilder();
 builder.command(cmd);
-CollectingProcessOutput output = new CollectingProcessOutput(builder);
+CollectingProcessOutput output = new CollectingProcessOutput();
+output.monitor(builder);
 System.out.println("exit code: " + output.getExitCode());
 System.out.println(output.getStdOut());
 ```

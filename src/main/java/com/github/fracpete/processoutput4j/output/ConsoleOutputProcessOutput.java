@@ -35,42 +35,6 @@ public final class ConsoleOutputProcessOutput
   private static final long serialVersionUID = 1902809285333524039L;
 
   /**
-   * Initializes the container.
-   *
-   * @param cmd		the command that was used
-   * @param env		the environment
-   * @param input	the input to be written to the process, can be null
-   * @param process	the process to obtain the results from
-   * @throws Exception	if collection of data fails
-   */
-  public ConsoleOutputProcessOutput(String cmd, String[] env, String input, Process process) throws Exception {
-    this(new String[] {cmd}, env, input, process);
-  }
-
-  /**
-   * Initializes the container.
-   *
-   * @param cmd		the command that was used
-   * @param env		the environment
-   * @param input	the input to be written to the process, can be null
-   * @param process	the process to obtain the results from
-   * @throws Exception	if collection of data fails
-   */
-  public ConsoleOutputProcessOutput(String[] cmd, String[] env, String input, Process process) throws Exception {
-    super(cmd, env, input, process);
-  }
-
-  /**
-   * Starts the monitoring process.
-   *
-   * @param builder	the process to obtain the results from
-   * @throws Exception	if collection of data fails
-   */
-  public ConsoleOutputProcessOutput(ProcessBuilder builder) throws Exception {
-    super(builder);
-  }
-
-  /**
    * Configures the thread for stderr.
    *
    * @param process 	the process to monitor
