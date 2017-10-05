@@ -8,7 +8,7 @@ Add the following artifact to your dependencies of your `pom.xml`:
     <dependency>
       <groupId>com.github.fracpete</groupId>
       <artifactId>processoutput4j</artifactId>
-      <version>0.0.4</version>
+      <version>0.0.5</version>
     </dependency>
 ```
 
@@ -22,6 +22,11 @@ The following schemes for capturing process output are available:
 * `StreamingProcessOutput` - requires an owner object that implements the
   `StreamingProcessOwner` interface, as it will receive the output collected
   from stdout/stderr for further processing in the owner.
+
+## Stopping
+The `AbstractProcessOutput` class offers the `destroy()` method, which
+allows a currently running process to be killed off from another thread
+(the `monitor` methods are waiting for the process to finish).
 
 ## Extending
 Adding a new scheme for capturing the process output is quite simple. You
