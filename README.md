@@ -8,7 +8,7 @@ Add the following artifact to your dependencies of your `pom.xml`:
     <dependency>
       <groupId>com.github.fracpete</groupId>
       <artifactId>processoutput4j</artifactId>
-      <version>0.0.3</version>
+      <version>0.0.4</version>
     </dependency>
 ```
 
@@ -19,6 +19,9 @@ The following schemes for capturing process output are available:
 * `ConsoleOutputProcessOutput` - simply outputs the process' output from
   stdout and stderr to the Java process' stdout and stderr as it occurrs
   rather than waiting till the process finishes.
+* `StreamingProcessOutput` - requires an owner object that implements the
+  `StreamingProcessOwner` interface, as it will receive the output collected
+  from stdout/stderr for further processing in the owner.
 
 ## Extending
 Adding a new scheme for capturing the process output is quite simple. You
