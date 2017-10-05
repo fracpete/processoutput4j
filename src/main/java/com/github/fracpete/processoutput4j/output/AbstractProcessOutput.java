@@ -13,7 +13,7 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/**
+/*
  * AbstractProcessOutput.java
  * Copyright (C) 2017 University of Waikato, Hamilton, NZ
  */
@@ -45,6 +45,9 @@ public abstract class AbstractProcessOutput
   /** the exit code. */
   protected int m_ExitCode;
 
+  /** the process. */
+  protected transient Process m_Process;
+
   /**
    * Starts the monitoring process.
    */
@@ -59,6 +62,7 @@ public abstract class AbstractProcessOutput
     m_Command     = new String[0];
     m_Environment = null;
     m_ExitCode    = 0;
+    m_Process     = null;
   }
 
   /**
@@ -118,24 +122,25 @@ public abstract class AbstractProcessOutput
   public void monitor(String cmd[], String[] env, String input, Process process) throws Exception {
     m_Command     = cmd;
     m_Environment = env;
+    m_Process     = process;
 
     // stderr
-    Thread threade = new Thread(configureStdErr(process));
+    Thread threade = new Thread(configureStdErr(m_Process));
     threade.start();
 
     // stdout
-    Thread threado = new Thread(configureStdOut(process));
+    Thread threado = new Thread(configureStdOut(m_Process));
     threado.start();
 
     // writing the input to the standard input of the process
     if (input != null) {
       BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
-	process.getOutputStream()));
+	m_Process.getOutputStream()));
       writer.write(input);
       writer.close();
     }
 
-    m_ExitCode = process.waitFor();
+    m_ExitCode = m_Process.waitFor();
 
     // wait for threads to finish
     while (threade.isAlive() || threado.isAlive()) {
@@ -148,6 +153,8 @@ public abstract class AbstractProcessOutput
 	// ignored
       }
     }
+
+    m_Process = null;
   }
 
   /**
@@ -200,6 +207,23 @@ public abstract class AbstractProcessOutput
    */
   public int getExitCode() {
     return m_ExitCode;
+  }
+
+  /**
+   * Returns the process.
+   *
+   * @return  the process, null if not available
+   */
+  public Process getProcess() {
+    return m_Process;
+  }
+
+  /**
+   * Destroys the process if possible.
+   */
+  public void destroy() {
+    if (m_Process != null)
+      m_Process.destroy();
   }
 
   /**
