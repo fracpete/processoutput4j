@@ -48,6 +48,12 @@ public abstract class AbstractProcessOutput
   /** the process. */
   protected transient Process m_Process;
 
+  /** the timeout for the process in seconds (ignored if < 1). */
+  protected int m_TimeOut;
+
+  /** whether the process has timed out. */
+  protected boolean m_TimedOut;
+
   /**
    * Starts the monitoring process.
    */
@@ -63,6 +69,28 @@ public abstract class AbstractProcessOutput
     m_Environment = null;
     m_ExitCode    = 0;
     m_Process     = null;
+    m_TimeOut     = -1;
+    m_TimedOut    = false;
+  }
+
+  /**
+   * Sets the timeout for the process in seconds.
+   *
+   * @param value	the timeout (less than 1 for no timeout)
+   */
+  public void setTimeOut(int value) {
+    if (value < 1)
+      value = -1;
+    m_TimeOut = value;
+  }
+
+  /**
+   * Returns the timeout for the process in seconds.
+   *
+   * @return		the timeout (less than 1 for no timeout)
+   */
+  public int getTimeOut() {
+    return m_TimeOut;
   }
 
   /**
@@ -123,14 +151,21 @@ public abstract class AbstractProcessOutput
     m_Command     = cmd;
     m_Environment = env;
     m_Process     = process;
+    m_TimedOut    = false;
 
     // stderr
-    Thread threade = new Thread(configureStdErr(m_Process));
+    Thread threade = configureStdErr(m_Process);
     threade.start();
 
     // stdout
-    Thread threado = new Thread(configureStdOut(m_Process));
+    Thread threado = configureStdOut(m_Process);
     threado.start();
+
+    // time out check
+    if (m_TimeOut > 0) {
+      Thread threadt = configureTimeOutMonitor(m_Process);
+      threadt.start();
+    }
 
     // writing the input to the standard input of the process
     if (input != null) {
@@ -174,6 +209,37 @@ public abstract class AbstractProcessOutput
   protected abstract Thread configureStdOut(Process process);
 
   /**
+   * Configures the thread for watching for time outs.
+   *
+   * @param process 	the process to monitor
+   * @return		the configured thread, not yet started
+   */
+  protected Thread configureTimeOutMonitor(final Process process) {
+    return new Thread(() -> {
+      long start = System.currentTimeMillis();
+      while (process.isAlive()) {
+	try {
+	  synchronized (this) {
+	    wait(500);
+	  }
+	  // time out defined and reached?
+	  if (process.isAlive()) {
+	    if (((System.currentTimeMillis() - start) / 1000) >= m_TimeOut) {
+	      m_TimedOut = true;
+	      System.err.println("Timeout of " + m_TimeOut + " seconds reached, terminating process...");
+	      process.destroy();
+	      break;
+	    }
+	  }
+	}
+	catch (Exception e) {
+	  // ignored
+	}
+      }
+    });
+  }
+
+  /**
    * Returns the command that was used for the process.
    *
    * @return the command
@@ -194,10 +260,11 @@ public abstract class AbstractProcessOutput
   /**
    * Returns whether the process has succeeded.
    *
-   * @return true if succeeded, i.e., exit code = 0
+   * @return true if succeeded, i.e., exit code = 0 and not timedout
+   * @see #hasTimedOut()
    */
   public boolean hasSucceeded() {
-    return (m_ExitCode == 0);
+    return (m_ExitCode == 0) && !hasTimedOut();
   }
 
   /**
@@ -207,6 +274,17 @@ public abstract class AbstractProcessOutput
    */
   public int getExitCode() {
     return m_ExitCode;
+  }
+
+  /**
+   * Returns whether the process timed out and got terminated.
+   *
+   * @return true if timedout
+   * @see #getTimeOut()
+   * @see #setTimeOut(int)
+   */
+  public boolean hasTimedOut() {
+    return m_TimedOut;
   }
 
   /**
