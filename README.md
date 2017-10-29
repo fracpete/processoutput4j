@@ -8,7 +8,7 @@ Add the following artifact to your dependencies of your `pom.xml`:
     <dependency>
       <groupId>com.github.fracpete</groupId>
       <artifactId>processoutput4j</artifactId>
-      <version>0.0.5</version>
+      <version>0.0.6</version>
     </dependency>
 ```
 
@@ -61,3 +61,17 @@ output.monitor(builder);
 System.out.println("exit code: " + output.getExitCode());
 System.out.println(output.getStdOut());
 ```
+
+The following executes the process and outputs any data from stdout/stderr
+as it occurs, as well as setting a maximum execution time of 10 seconds:
+```java
+import com.github.fracpete.processoutput4j.output.CollectingProcessOutput;
+...
+String[] cmd = new String[]{"/usr/bin/find", "/"};
+ProcessBuilder builder = new ProcessBuilder();
+builder.command(cmd);
+ConsoleOutputProcessOutput output = new ConsoleOutputProcessOutput();
+output.setTimeOut(10);
+output.monitor(builder);
+```
+You can use the `hasTimedOut()` method to check whether the process timed out.
