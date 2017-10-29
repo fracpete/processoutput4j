@@ -21,6 +21,7 @@
 package com.github.fracpete.processoutput4j.reader;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 
 /**
@@ -89,8 +90,20 @@ public abstract class AbstractProcessReader
       else
 	reader = new BufferedReader(new InputStreamReader(m_Process.getErrorStream()), 1024);
 
-      while ((line = reader.readLine()) != null)
-	process(line);
+      while (m_Process.isAlive()) {
+        try {
+          line = reader.readLine();
+        }
+        catch (IOException ioe) {
+          // has process stopped?
+          if (ioe.getMessage().toLowerCase().contains("stream closed"))
+            return;
+          else
+            throw ioe;
+        }
+        if (line != null)
+          process(line);
+      }
     }
     catch (Exception e) {
       System.err.println("Failed to read from " + (m_Stdout ? "stdout" : "stderr") + " for process #" + m_Process.hashCode() + ":");
