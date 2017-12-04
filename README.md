@@ -75,3 +75,31 @@ output.setTimeOut(10);
 output.monitor(builder);
 ```
 You can use the `hasTimedOut()` method to check whether the process timed out.
+
+If you want to process the output (stdout/stderr) from the process
+yourself, then you can use `StreamingProcessOutput` instead of 
+`ConsoleOutputProcessOutput`. You only need to supply an object of a class
+implementing the `StreamingProcessOwner` interface. Below is an example
+that simply prefixes the output with either `[OUT]` or `[ERR]`: 
+
+```java
+import com.github.fracpete.processoutput4j.core.StreamingProcessOutputType;
+import com.github.fracpete.processoutput4j.core.StreamingProcessOwner;
+import com.github.fracpete.processoutput4j.output.StreamingProcessOutput;
+
+public static class Output implements StreamingProcessOwner {
+  public StreamingProcessOutputType getOutputType() {
+    return StreamingProcessOutputType.BOTH;
+  }
+  public void processOutput(String line, boolean stdout) {
+    System.out.println((stdout ? "[OUT] " : "[ERR] ") + line);
+  }
+}
+
+...
+String[] cmd = new String[]{"/usr/bin/find", "/etc"};
+ProcessBuilder builder = new ProcessBuilder();
+builder.command(cmd);
+StreamingProcessOutput output = new StreamingProcessOutput(new Output());
+output.monitor(builder);
+```
