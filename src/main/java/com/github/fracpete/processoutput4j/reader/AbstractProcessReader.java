@@ -15,7 +15,7 @@
 
 /*
  * AbstractProcessReader.java
- * Copyright (C) 2017 University of Waikato, Hamilton, NZ
+ * Copyright (C) 2017-2018 University of Waikato, Hamilton, NZ
  */
 
 package com.github.fracpete.processoutput4j.reader;
@@ -29,7 +29,6 @@ import java.io.InputStreamReader;
  * {@link Process} object.
  *
  * @author fracpete (fracpete at waikato dot ac dot nz)
- * @version $Revision: 6502 $
  */
 public abstract class AbstractProcessReader
   implements Runnable {
@@ -82,7 +81,7 @@ public abstract class AbstractProcessReader
   @Override
   public void run() {
     String 		line;
-    BufferedReader reader;
+    BufferedReader 	reader;
 
     try {
       if (m_Stdout)
@@ -103,6 +102,20 @@ public abstract class AbstractProcessReader
         }
         if (line != null)
           process(line);
+      }
+
+      // make sure all data has been read
+      while (true) {
+        try {
+          line = reader.readLine();
+          if (line == null)
+            break;
+          else
+	    process(line);
+	}
+	catch (Exception e) {
+          break;
+	}
       }
     }
     catch (Exception e) {
