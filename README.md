@@ -111,7 +111,7 @@ of the following implementations:
 
   Forwards the stdout/stderr output of the monitored process to this one's
   stdout, using either default prefixes for stdout/stderr or user-supplied
-  ones.
+  ones (like the above example).
 
 * `com.github.fracpete.processoutput4j.core.impl.SimpleStreamingProcessOwner`
 
