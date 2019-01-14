@@ -8,7 +8,7 @@ Add the following artifact to your dependencies of your `pom.xml`:
     <dependency>
       <groupId>com.github.fracpete</groupId>
       <artifactId>processoutput4j</artifactId>
-      <version>0.0.7</version>
+      <version>0.0.8</version>
     </dependency>
 ```
 
@@ -103,3 +103,17 @@ builder.command(cmd);
 StreamingProcessOutput output = new StreamingProcessOutput(new Output());
 output.monitor(builder);
 ```
+
+Instead of implementing `StreamingProcessOwner` yourself, you can use one
+of the following implementations:
+
+* `com.github.fracpete.processoutput4j.core.impl.PrefixedStreamingProcessOwner`
+
+  Forwards the stdout/stderr output of the monitored process to this one's 
+  stdout/stderr.
+
+* `com.github.fracpete.processoutput4j.core.impl.SimpleStreamingProcessOwner`
+
+  Forwards the stdout/stderr output of the monitored process to this one's
+  stdout, using either default prefixes for stdout/stderr or user-supplied
+  ones.
