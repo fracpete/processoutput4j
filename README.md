@@ -109,11 +109,11 @@ of the following implementations:
 
 * `com.github.fracpete.processoutput4j.core.impl.PrefixedStreamingProcessOwner`
 
-  Forwards the stdout/stderr output of the monitored process to this one's 
-  stdout/stderr.
-
-* `com.github.fracpete.processoutput4j.core.impl.SimpleStreamingProcessOwner`
-
   Forwards the stdout/stderr output of the monitored process to this one's
   stdout, using either default prefixes for stdout/stderr or user-supplied
   ones.
+
+* `com.github.fracpete.processoutput4j.core.impl.SimpleStreamingProcessOwner`
+
+  Forwards the stdout/stderr output of the monitored process to this one's 
+  stdout/stderr.
