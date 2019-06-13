@@ -15,7 +15,7 @@
 
 /*
  * StreamingProcessReader.java
- * Copyright (C) 2017 University of Waikato, Hamilton, NZ
+ * Copyright (C) 2017-2019 University of Waikato, Hamilton, NZ
  */
 
 package com.github.fracpete.processoutput4j.reader;
@@ -42,11 +42,10 @@ public class StreamingProcessReader
    * Initializes the reader.
    *
    * @param owner the owning object
-   * @param process the process to monitor
    * @param stdout  whether to read stdout or stderr
    */
-  public StreamingProcessReader(StreamingProcessOwner owner, Process process, boolean stdout) {
-    super(process, stdout);
+  public StreamingProcessReader(StreamingProcessOwner owner, boolean stdout) {
+    super(stdout);
     m_Owner = owner;
     m_Forward = (stdout && (m_Owner.getOutputType() == StreamingProcessOutputType.STDOUT))
 	|| (!stdout && (m_Owner.getOutputType() == StreamingProcessOutputType.STDERR))

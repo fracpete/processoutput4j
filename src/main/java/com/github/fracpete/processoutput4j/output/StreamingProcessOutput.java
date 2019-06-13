@@ -15,12 +15,13 @@
 
 /*
  * StreamingProcessOutput.java
- * Copyright (C) 2017 University of Waikato, Hamilton, NZ
+ * Copyright (C) 2017-2019 University of Waikato, Hamilton, NZ
  */
 
 package com.github.fracpete.processoutput4j.output;
 
 import com.github.fracpete.processoutput4j.core.StreamingProcessOwner;
+import com.github.fracpete.processoutput4j.reader.AbstractProcessReader;
 import com.github.fracpete.processoutput4j.reader.StreamingProcessReader;
 
 /**
@@ -49,22 +50,20 @@ public class StreamingProcessOutput
   /**
    * Configures the thread for stderr.
    *
-   * @param process 	the process to monitor
    * @return		the configured thread, not yet started
    */
   @Override
-  protected Thread configureStdErr(Process process) {
-    return new Thread(new StreamingProcessReader(m_Owner, process, false));
+  protected AbstractProcessReader configureStdErr() {
+    return new StreamingProcessReader(m_Owner, false);
   }
 
   /**
    * Configures the thread for stdout.
    *
-   * @param process 	the process to monitor
    * @return		the configured thread, not yet started
    */
   @Override
-  protected Thread configureStdOut(Process process) {
-    return new Thread(new StreamingProcessReader(m_Owner, process, true));
+  protected AbstractProcessReader configureStdOut() {
+    return new StreamingProcessReader(m_Owner, true);
   }
 }

@@ -15,11 +15,12 @@
 
 /*
  * CollectingProcessOutput.java
- * Copyright (C) 2017 University of Waikato, Hamilton, NZ
+ * Copyright (C) 2017-2019 University of Waikato, Hamilton, NZ
  */
 
 package com.github.fracpete.processoutput4j.output;
 
+import com.github.fracpete.processoutput4j.reader.AbstractProcessReader;
 import com.github.fracpete.processoutput4j.reader.CollectingProcessReader;
 
 /**
@@ -27,7 +28,6 @@ import com.github.fracpete.processoutput4j.reader.CollectingProcessReader;
  * once the process finishes.
  *
  * @author fracpete (fracpete at waikato dot ac dot nz)
- * @version $Revision: 6502 $
  */
 public final class CollectingProcessOutput
   extends AbstractProcessOutput {
@@ -52,23 +52,24 @@ public final class CollectingProcessOutput
   }
 
   /**
-   * Configures the thread for stderr.
+   * Configures the reader for stderr.
    *
-   * @param process 	the process to monitor
-   * @return		the configured thread, not yet started
+   * @return		the configured reader
    */
-  protected Thread configureStdErr(Process process) {
-    return new Thread(new CollectingProcessReader(process, false, m_StdErr));
+  @Override
+  protected AbstractProcessReader configureStdErr() {
+    return new CollectingProcessReader(false, m_StdErr);
   }
 
   /**
-   * Configures the thread for stdout.
+   * Configures the reader for stdout.
    *
    * @param process 	the process to monitor
-   * @return		the configured thread, not yet started
+   * @return		the configured reader
    */
-  protected Thread configureStdOut(Process process) {
-    return new Thread(new CollectingProcessReader(process, true, m_StdOut));
+  @Override
+  protected AbstractProcessReader configureStdOut() {
+    return new CollectingProcessReader(true, m_StdOut);
   }
 
   /**

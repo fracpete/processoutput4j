@@ -15,18 +15,18 @@
 
 /*
  * ConsoleOutputProcessOutput.java
- * Copyright (C) 2017 University of Waikato, Hamilton, NZ
+ * Copyright (C) 2017-2019 University of Waikato, Hamilton, NZ
  */
 
 package com.github.fracpete.processoutput4j.output;
 
+import com.github.fracpete.processoutput4j.reader.AbstractProcessReader;
 import com.github.fracpete.processoutput4j.reader.ConsoleOutputProcessReader;
 
 /**
  * A container class for the results obtained from executing a process.
  *
  * @author fracpete (fracpete at waikato dot ac dot nz)
- * @version $Revision: 6502 $
  */
 public final class ConsoleOutputProcessOutput
   extends AbstractProcessOutput {
@@ -37,20 +37,19 @@ public final class ConsoleOutputProcessOutput
   /**
    * Configures the thread for stderr.
    *
-   * @param process 	the process to monitor
    * @return		the configured thread, not yet started
    */
-  protected Thread configureStdErr(Process process) {
-    return new Thread(new ConsoleOutputProcessReader(process, false, ""));
+  protected AbstractProcessReader configureStdErr() {
+    return new ConsoleOutputProcessReader(false, "");
   }
 
   /**
    * Configures the thread for stdout.
    *
-   * @param process 	the process to monitor
    * @return		the configured thread, not yet started
    */
-  protected Thread configureStdOut(Process process) {
-    return new Thread(new ConsoleOutputProcessReader(process, true, ""));
+  @Override
+  protected AbstractProcessReader configureStdOut() {
+    return new ConsoleOutputProcessReader(true, "");
   }
 }

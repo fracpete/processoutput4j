@@ -15,10 +15,12 @@
 
 /*
  * AbstractProcessReader.java
- * Copyright (C) 2017-2018 University of Waikato, Hamilton, NZ
+ * Copyright (C) 2017-2019 University of Waikato, Hamilton, NZ
  */
 
 package com.github.fracpete.processoutput4j.reader;
+
+import com.github.fracpete.processoutput4j.core.AbstractProcessRunnable;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -31,10 +33,7 @@ import java.io.InputStreamReader;
  * @author fracpete (fracpete at waikato dot ac dot nz)
  */
 public abstract class AbstractProcessReader
-  implements Runnable {
-
-  /** the process to read from. */
-  protected Process m_Process;
+  extends AbstractProcessRunnable {
 
   /** whether to use stdout or stderr. */
   protected boolean m_Stdout;
@@ -42,11 +41,10 @@ public abstract class AbstractProcessReader
   /**
    * Initializes the reader.
    *
-   * @param process	the process to monitor
    * @param stdout	whether to read stdout or stderr
    */
-  public AbstractProcessReader(Process process, boolean stdout) {
-    m_Process = process;
+  public AbstractProcessReader(boolean stdout) {
+    super();
     m_Stdout = stdout;
   }
 
@@ -60,15 +58,6 @@ public abstract class AbstractProcessReader
   }
 
   /**
-   * Returns the underlying {@link Process} object.
-   *
-   * @return		the process object
-   */
-  public Process getProcess() {
-    return m_Process;
-  }
-
-  /**
    * For processing the line read from stdout/stderr.
    *
    * @param line	the output line
@@ -76,10 +65,9 @@ public abstract class AbstractProcessReader
   protected abstract void process(String line);
 
   /**
-   * Reads the data from the process.
+   * The actual processing loop.
    */
-  @Override
-  public void run() {
+  protected void doRun() {
     String 		line;
     BufferedReader 	reader;
 

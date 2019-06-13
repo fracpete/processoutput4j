@@ -15,7 +15,7 @@
 
 /*
  * SimpleOutputProcessReader.java
- * Copyright (C) 2017 University of Waikato, Hamilton, NZ
+ * Copyright (C) 2017-2019 University of Waikato, Hamilton, NZ
  */
 
 package com.github.fracpete.processoutput4j.reader;
@@ -41,22 +41,20 @@ public class ConsoleOutputProcessReader
   /**
    * Initializes the reader.
    *
-   * @param process the process to monitor
    * @param stdout  whether to read stdout or stderr
    */
-  public ConsoleOutputProcessReader(Process process, boolean stdout) {
-    this(process, stdout, null);
+  public ConsoleOutputProcessReader(boolean stdout) {
+    this(stdout, null);
   }
 
   /**
    * Initializes the reader.
    *
-   * @param process 	the process to monitor
    * @param stdout  	whether to read stdout or stderr
    * @param prefix	the prefix to use, null for auto-prefix
    */
-  public ConsoleOutputProcessReader(Process process, boolean stdout, String prefix) {
-    super(process, stdout);
+  public ConsoleOutputProcessReader(boolean stdout, String prefix) {
+    super(stdout);
     m_Prefix = (prefix == null) ? (stdout ? PREFIX_STDOUT : PREFIX_STDERR) : prefix;
   }
 

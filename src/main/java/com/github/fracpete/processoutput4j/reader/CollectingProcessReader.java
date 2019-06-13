@@ -15,7 +15,7 @@
 
 /*
  * CollectingProcessReader.java
- * Copyright (C) 2017 University of Waikato, Hamilton, NZ
+ * Copyright (C) 2017-2019 University of Waikato, Hamilton, NZ
  */
 
 package com.github.fracpete.processoutput4j.reader;
@@ -24,7 +24,6 @@ package com.github.fracpete.processoutput4j.reader;
  * Reader for storing all content.
  *
  * @author fracpete (fracpete at waikato dot ac dot nz)
- * @version $Revision: 6502 $
  */
 public class CollectingProcessReader
   extends AbstractProcessReader {
@@ -35,12 +34,11 @@ public class CollectingProcessReader
   /**
    * Initializes the reader.
    *
-   * @param process	the process to monitor
    * @param stdout  	whether to read stdout or stderr
    * @param content	for storing the content
    */
-  public CollectingProcessReader(Process process, boolean stdout, StringBuilder content) {
-    super(process, stdout);
+  public CollectingProcessReader(boolean stdout, StringBuilder content) {
+    super(stdout);
     m_Content = content;
   }
 

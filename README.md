@@ -8,7 +8,7 @@ Add the following artifact to your dependencies of your `pom.xml`:
     <dependency>
       <groupId>com.github.fracpete</groupId>
       <artifactId>processoutput4j</artifactId>
-      <version>0.0.8</version>
+      <version>0.0.9</version>
     </dependency>
 ```
 
