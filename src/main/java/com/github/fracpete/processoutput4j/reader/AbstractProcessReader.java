@@ -38,6 +38,9 @@ public abstract class AbstractProcessReader
   /** whether to use stdout or stderr. */
   protected boolean m_Stdout;
 
+  /** the reader use internally. */
+  protected BufferedReader m_Reader;
+
   /**
    * Initializes the reader.
    *
@@ -65,21 +68,45 @@ public abstract class AbstractProcessReader
   protected abstract void process(String line);
 
   /**
+   * Flushes the data.
+   */
+  public void flush() {
+    String	line;
+
+    while (m_Reader != null) {
+      try {
+	line = m_Reader.readLine();
+	if (line == null)
+	  break;
+	else
+	  process(line);
+      }
+      catch (IOException e) {
+        // probably "stream closed"
+        break;
+      }
+      catch (Exception e) {
+        logError("Failed to flush!", e);
+	break;
+      }
+    }
+  }
+
+  /**
    * The actual processing loop.
    */
   protected void doRun() {
     String 		line;
-    BufferedReader 	reader;
 
     try {
       if (m_Stdout)
-	reader = new BufferedReader(new InputStreamReader(m_Process.getInputStream()), 1024);
+	m_Reader = new BufferedReader(new InputStreamReader(m_Process.getInputStream()));
       else
-	reader = new BufferedReader(new InputStreamReader(m_Process.getErrorStream()), 1024);
+	m_Reader = new BufferedReader(new InputStreamReader(m_Process.getErrorStream()));
 
       while (m_Process.isAlive()) {
         try {
-          line = reader.readLine();
+          line = m_Reader.readLine();
         }
         catch (IOException ioe) {
           // has process stopped?
@@ -93,18 +120,7 @@ public abstract class AbstractProcessReader
       }
 
       // make sure all data has been read
-      while (true) {
-        try {
-          line = reader.readLine();
-          if (line == null)
-            break;
-          else
-	    process(line);
-	}
-	catch (Exception e) {
-          break;
-	}
-      }
+      flush();
     }
     catch (Exception e) {
       System.err.println("Failed to read from " + (m_Stdout ? "stdout" : "stderr") + " for process #" + m_Process.hashCode() + ":");

@@ -23,6 +23,8 @@ package com.github.fracpete.processoutput4j.output;
 import com.github.fracpete.processoutput4j.reader.AbstractProcessReader;
 import com.github.fracpete.processoutput4j.reader.ConsoleOutputProcessReader;
 
+import java.util.Arrays;
+
 /**
  * A container class for the results obtained from executing a process.
  *
@@ -51,5 +53,31 @@ public final class ConsoleOutputProcessOutput
   @Override
   protected AbstractProcessReader configureStdOut() {
     return new ConsoleOutputProcessReader(true, "");
+  }
+
+  /**
+   * Allows the execution of a command through this process output scheme.
+   *
+   * @param args	the command to launch
+   * @throws Exception	if launching fails for some reason
+   */
+  public static void main(String[] args) throws Exception {
+    ProcessBuilder 		builder;
+    ConsoleOutputProcessOutput 	out;
+
+    if (args.length == 0) {
+      System.err.println("No command (+ options) provided!");
+      System.exit(1);
+    }
+
+    builder = new ProcessBuilder();
+    builder.command(args);
+    out = new ConsoleOutputProcessOutput();
+    out.monitor(builder);
+    System.out.println();
+    System.out.println("Command:");
+    System.out.println(Arrays.asList(args));
+    System.out.println("Exit code:");
+    System.out.println(out.getExitCode());
   }
 }

@@ -23,6 +23,8 @@ package com.github.fracpete.processoutput4j.output;
 import com.github.fracpete.processoutput4j.reader.AbstractProcessReader;
 import com.github.fracpete.processoutput4j.reader.CollectingProcessReader;
 
+import java.util.Arrays;
+
 /**
  * Collects the process output (stdout and stderr) and makes them available
  * once the process finishes.
@@ -88,5 +90,35 @@ public final class CollectingProcessOutput
    */
   public String getStdErr() {
     return m_StdErr.toString();
+  }
+
+  /**
+   * Allows the execution of a command through this process output scheme.
+   *
+   * @param args	the command to launch
+   * @throws Exception	if launching fails for some reason
+   */
+  public static void main(String[] args) throws Exception {
+    ProcessBuilder 		builder;
+    CollectingProcessOutput 	out;
+
+    if (args.length == 0) {
+      System.err.println("No command (+ options) provided!");
+      System.exit(1);
+    }
+
+    builder = new ProcessBuilder();
+    builder.command(args);
+    out = new CollectingProcessOutput();
+    out.monitor(builder);
+    System.out.println();
+    System.out.println("Command:");
+    System.out.println(Arrays.asList(args));
+    System.out.println("Exit code:");
+    System.out.println(out.getExitCode());
+    System.out.println("StdOut:");
+    System.out.println(out.getStdOut());
+    System.err.println("StdErr:");
+    System.err.println(out.getStdErr());
   }
 }

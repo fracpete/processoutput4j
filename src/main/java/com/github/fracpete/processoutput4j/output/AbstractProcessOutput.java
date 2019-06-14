@@ -172,6 +172,8 @@ public abstract class AbstractProcessOutput
       }
     }
 
+    flush();
+
     m_Process = null;
   }
 
@@ -258,6 +260,8 @@ public abstract class AbstractProcessOutput
       }
     }
 
+    flush();
+
     m_Process         = null;
     m_ReaderStdErr    = null;
     m_ReaderStdOut    = null;
@@ -297,7 +301,7 @@ public abstract class AbstractProcessOutput
 	    if (m_Process.isAlive()) {
 	      if (((System.currentTimeMillis() - start) / 1000) >= m_TimeOut) {
 		m_TimedOut = true;
-		System.err.println("Timeout of " + m_TimeOut + " seconds reached, terminating process...");
+		logError("Timeout of " + m_TimeOut + " seconds reached, terminating process...");
 		m_Process.destroy();
 		break;
 	      }
@@ -369,6 +373,16 @@ public abstract class AbstractProcessOutput
   }
 
   /**
+   * Flushes the readers.
+   */
+  public void flush() {
+    if (m_ReaderStdErr != null)
+      m_ReaderStdErr.flush();
+    if (m_ReaderStdOut != null)
+      m_ReaderStdOut.flush();
+  }
+
+  /**
    * Destroys the process if possible.
    */
   public void destroy() {
@@ -380,6 +394,7 @@ public abstract class AbstractProcessOutput
       m_ReaderStdOut.stopExecution();
     if (m_RunnableTimeout != null)
       m_RunnableTimeout.stopExecution();
+    flush();
   }
 
   /**

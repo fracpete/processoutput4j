@@ -21,8 +21,11 @@
 package com.github.fracpete.processoutput4j.output;
 
 import com.github.fracpete.processoutput4j.core.StreamingProcessOwner;
+import com.github.fracpete.processoutput4j.core.impl.PrefixedStreamingProcessOwner;
 import com.github.fracpete.processoutput4j.reader.AbstractProcessReader;
 import com.github.fracpete.processoutput4j.reader.StreamingProcessReader;
+
+import java.util.Arrays;
 
 /**
  * Streams the data into the owning {@link StreamingProcessOwner} object.
@@ -65,5 +68,31 @@ public class StreamingProcessOutput
   @Override
   protected AbstractProcessReader configureStdOut() {
     return new StreamingProcessReader(m_Owner, true);
+  }
+
+  /**
+   * Allows the execution of a command through this process output scheme.
+   *
+   * @param args	the command to launch
+   * @throws Exception	if launching fails for some reason
+   */
+  public static void main(String[] args) throws Exception {
+    ProcessBuilder 		builder;
+    StreamingProcessOutput 	out;
+
+    if (args.length == 0) {
+      System.err.println("No command (+ options) provided!");
+      System.exit(1);
+    }
+
+    builder = new ProcessBuilder();
+    builder.command(args);
+    out = new StreamingProcessOutput(new PrefixedStreamingProcessOwner());
+    out.monitor(builder);
+    System.out.println();
+    System.out.println("Command:");
+    System.out.println(Arrays.asList(args));
+    System.out.println("Exit code:");
+    System.out.println(out.getExitCode());
   }
 }

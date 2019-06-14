@@ -85,6 +85,26 @@ public abstract class AbstractProcessRunnable
   }
 
   /**
+   * Just outputs the message on stderr.
+   *
+   * @param msg		the message to output
+   */
+  protected void logError(String msg) {
+    System.err.println(msg);
+  }
+
+  /**
+   * Just outputs message and throwable on stderr.
+   *
+   * @param msg		the message to output
+   * @param t 		the exception
+   */
+  protected void logError(String msg, Throwable t) {
+    System.err.println(msg);
+    t.printStackTrace();
+  }
+
+  /**
    * The actual processing loop.
    */
   protected abstract void doRun();
@@ -110,8 +130,7 @@ public abstract class AbstractProcessRunnable
       doRun();
     }
     catch (Exception e) {
-      System.err.println("Failed to process #" + m_Process.hashCode() + ":");
-      e.printStackTrace();
+      logError("Failed to process #" + m_Process.hashCode() + ":", e);
     }
   }
 }
