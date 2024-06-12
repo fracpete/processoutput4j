@@ -1,6 +1,6 @@
 /*
  * AbstractProcessOutput.java
- * Copyright (C) 2017-2020 University of Waikato, Hamilton, NZ
+ * Copyright (C) 2017-2024 University of Waikato, Hamilton, NZ
  */
 
 package com.github.fracpete.processoutput4j.output;
@@ -151,10 +151,19 @@ public abstract class AbstractProcessOutput
 	synchronized (this) {
 	  wait(100);
 	}
+	if (m_TimedOut)
+	  break;
       }
       catch (Exception e) {
 	// ignored
       }
+    }
+
+    if (m_TimedOut) {
+      if (threade.isAlive())
+	threade.stop();
+      if (threado.isAlive())
+	threado.stop();
     }
 
     flush();
@@ -196,7 +205,7 @@ public abstract class AbstractProcessOutput
    * @param process 	the process to monitor
    * @throws Exception	if writing to stdin fails
    */
-  public void monitor(String cmd[], String[] env, String input, Process process) throws Exception {
+  public void monitor(String[] cmd, String[] env, String input, Process process) throws Exception {
     m_Command     = cmd;
     m_Environment = env;
     m_Process     = process;
@@ -239,10 +248,19 @@ public abstract class AbstractProcessOutput
 	synchronized (this) {
 	  wait(100);
 	}
+	if (m_TimedOut)
+	  break;
       }
       catch (Exception e) {
 	// ignored
       }
+    }
+
+    if (m_TimedOut) {
+      if (threade.isAlive())
+	threade.stop();
+      if (threado.isAlive())
+	threado.stop();
     }
 
     flush();
