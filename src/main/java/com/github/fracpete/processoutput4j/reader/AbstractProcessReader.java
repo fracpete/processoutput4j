@@ -1,6 +1,6 @@
 /*
  * AbstractProcessReader.java
- * Copyright (C) 2017-2020 University of Waikato, Hamilton, NZ
+ * Copyright (C) 2017-2024 University of Waikato, Hamilton, NZ
  */
 
 package com.github.fracpete.processoutput4j.reader;
@@ -103,13 +103,18 @@ public abstract class AbstractProcessReader
         if (line != null)
           process(line);
       }
-
-      // make sure all data has been read
-      flush();
     }
     catch (Exception e) {
       System.err.println("Failed to read from " + (m_Stdout ? "stdout" : "stderr") + " for process #" + m_Process.hashCode() + ":");
       e.printStackTrace();
+    }
+
+    try {
+      // make sure all data has been read
+      flush();
+    }
+    catch (Exception e) {
+      // ignored
     }
   }
 }
