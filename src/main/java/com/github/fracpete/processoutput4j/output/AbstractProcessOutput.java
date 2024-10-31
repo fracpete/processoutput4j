@@ -161,9 +161,9 @@ public abstract class AbstractProcessOutput
 
     if (m_TimedOut) {
       if (threade.isAlive())
-	threade.stop();
+	threade.interrupt();
       if (threado.isAlive())
-	threado.stop();
+	threado.interrupt();
     }
 
     flush();
@@ -258,9 +258,9 @@ public abstract class AbstractProcessOutput
 
     if (m_TimedOut) {
       if (threade.isAlive())
-	threade.stop();
+	threade.interrupt();
       if (threado.isAlive())
-	threado.stop();
+	threado.interrupt();
     }
 
     flush();
