@@ -11,4 +11,6 @@ How to make a release
 
 * Push all changes
 
+* Publish on https://oss.sonatype.org/
+
 * Update Maven artifact in [README.md](README.md#maven)
