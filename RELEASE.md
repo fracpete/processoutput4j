@@ -10,3 +10,5 @@ How to make a release
   ```
 
 * Push all changes
+
+* Update Maven artifact in [README.md](README.md#maven)
