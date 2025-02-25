@@ -1,7 +1,7 @@
 How to make a release
 =====================
 
-* Switch to Java 8
+* Switch to Java 9
 
 * Run the following command to deploy the artifact:
 
