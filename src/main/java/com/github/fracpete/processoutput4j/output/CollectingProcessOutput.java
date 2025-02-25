@@ -1,6 +1,6 @@
 /*
  * CollectingProcessOutput.java
- * Copyright (C) 2017-2020 University of Waikato, Hamilton, NZ
+ * Copyright (C) 2017-2025 University of Waikato, Hamilton, NZ
  */
 
 package com.github.fracpete.processoutput4j.output;
@@ -51,7 +51,6 @@ public final class CollectingProcessOutput
   /**
    * Configures the reader for stdout.
    *
-   * @param process 	the process to monitor
    * @return		the configured reader
    */
   @Override
