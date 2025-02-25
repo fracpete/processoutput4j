@@ -1,9 +1,11 @@
 /*
  * AbstractProcessRunnable.java
- * Copyright (C) 2019-2020 University of Waikato, Hamilton, NZ
+ * Copyright (C) 2019-2025 University of Waikato, Hamilton, NZ
  */
 
 package com.github.fracpete.processoutput4j.core;
+
+import com.github.fracpete.processoutput4j.core.impl.StderrErrorLogger;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -17,22 +19,44 @@ import java.util.concurrent.TimeUnit;
 public abstract class AbstractProcessRunnable
   implements Runnable {
 
+  /** the polling timeout interval in milliseconds. */
+  protected int m_PollInterval;
+
+  /** the error logger. */
+  protected ErrorLogger m_ErrorLogger;
+
   /** the blocking queue for the process. */
   protected BlockingQueue<Process> m_Queue;
 
   /** the process to read from. */
   protected Process m_Process;
 
+  /** whether the runnable is still active. */
+  protected boolean m_Running;
+
   /** whether the reader got stopped. */
   protected boolean m_Stopped;
 
   /**
-   * Initializes the reader.
+   * Initializes the runnable.
    */
   public AbstractProcessRunnable() {
-    m_Queue   = new ArrayBlockingQueue<>(1);
-    m_Process = null;
-    m_Stopped = false;
+    this(1000, new StderrErrorLogger());
+  }
+
+  /**
+   * Initializes the runnable.
+   *
+   * @param pollInterval 	the timeout interval in milliseconds to use when polling for new output
+   * @param errorLogger 	the error logger to use
+   */
+  public AbstractProcessRunnable(int pollInterval, ErrorLogger errorLogger) {
+    m_PollInterval = pollInterval;
+    m_ErrorLogger  = errorLogger;
+    m_Queue        = new ArrayBlockingQueue<>(1);
+    m_Process      = null;
+    m_Running      = false;
+    m_Stopped      = false;
   }
 
   /**
@@ -49,6 +73,15 @@ public abstract class AbstractProcessRunnable
    */
   public boolean isStopped() {
     return m_Stopped;
+  }
+
+  /**
+   * Returns whether the runnable is still active.
+   *
+   * @return		true if active
+   */
+  public boolean isRunning() {
+    return m_Running;
   }
 
   /**
@@ -75,7 +108,7 @@ public abstract class AbstractProcessRunnable
    * @param msg		the message to output
    */
   protected void logError(String msg) {
-    System.err.println(msg);
+    m_ErrorLogger.logError(msg);
   }
 
   /**
@@ -85,8 +118,7 @@ public abstract class AbstractProcessRunnable
    * @param t 		the exception
    */
   protected void logError(String msg, Throwable t) {
-    System.err.println(msg);
-    t.printStackTrace();
+    m_ErrorLogger.logError(msg, t);
   }
 
   /**
@@ -99,10 +131,12 @@ public abstract class AbstractProcessRunnable
    */
   @Override
   public void run() {
+    m_Running = true;
+
     try {
       while ((m_Process == null) && !isStopped()) {
         try {
-	  m_Process = m_Queue.poll(1000, TimeUnit.MILLISECONDS);
+	  m_Process = m_Queue.poll(m_PollInterval, TimeUnit.MILLISECONDS);
 	}
 	catch (Exception e) {
           // ignored
@@ -117,5 +151,7 @@ public abstract class AbstractProcessRunnable
     catch (Exception e) {
       logError("Failed to process #" + m_Process.hashCode() + ":", e);
     }
+
+    m_Running = false;
   }
 }
