@@ -1,11 +1,12 @@
 /*
  * AbstractProcessReader.java
- * Copyright (C) 2017-2024 University of Waikato, Hamilton, NZ
+ * Copyright (C) 2017-2025 University of Waikato, Hamilton, NZ
  */
 
 package com.github.fracpete.processoutput4j.reader;
 
 import com.github.fracpete.processoutput4j.core.AbstractProcessRunnable;
+import com.github.fracpete.processoutput4j.core.ErrorLogger;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -33,6 +34,18 @@ public abstract class AbstractProcessReader
    */
   public AbstractProcessReader(boolean stdout) {
     super();
+    m_Stdout = stdout;
+  }
+
+  /**
+   * Initializes the reader.
+   *
+   * @param pollInterval 	the timeout interval in milliseconds to use when polling for new output
+   * @param errorLogger 	the error logger to use
+   * @param stdout		whether to read stdout or stderr
+   */
+  public AbstractProcessReader(int pollInterval, ErrorLogger errorLogger, boolean stdout) {
+    super(pollInterval, errorLogger);
     m_Stdout = stdout;
   }
 
@@ -105,16 +118,10 @@ public abstract class AbstractProcessReader
       }
     }
     catch (Exception e) {
-      System.err.println("Failed to read from " + (m_Stdout ? "stdout" : "stderr") + " for process #" + m_Process.hashCode() + ":");
-      e.printStackTrace();
+      logError("Failed to read from " + (m_Stdout ? "stdout" : "stderr") + " for process #" + m_Process.hashCode() + ":", e);
     }
 
-    try {
-      // make sure all data has been read
-      flush();
-    }
-    catch (Exception e) {
-      // ignored
-    }
+    // make sure all data has been read
+    flush();
   }
 }
