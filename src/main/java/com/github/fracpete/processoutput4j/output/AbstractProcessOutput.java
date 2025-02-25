@@ -1,12 +1,13 @@
 /*
  * AbstractProcessOutput.java
- * Copyright (C) 2017-2024 University of Waikato, Hamilton, NZ
+ * Copyright (C) 2017-2025 University of Waikato, Hamilton, NZ
  */
 
 package com.github.fracpete.processoutput4j.output;
 
 import com.github.fracpete.processoutput4j.core.AbstractProcessRunnable;
 import com.github.fracpete.processoutput4j.core.EnvironmentUtils;
+import com.github.fracpete.processoutput4j.core.ProcessUtils;
 import com.github.fracpete.processoutput4j.reader.AbstractProcessReader;
 
 import java.io.BufferedWriter;
@@ -36,7 +37,7 @@ public abstract class AbstractProcessOutput
   /** the process. */
   protected transient Process m_Process;
 
-  /** the timeout for the process in seconds (ignored if < 1). */
+  /** the timeout for the process in seconds (ignored if less than 1). */
   protected int m_TimeOut;
 
   /** whether the process has timed out. */
@@ -107,68 +108,71 @@ public abstract class AbstractProcessOutput
    * @throws Exception	if writing to stdin fails
    */
   public void monitor(String input, ProcessBuilder builder) throws Exception {
-    m_Command     = builder.command().toArray(new String[0]);
-    m_Environment = EnvironmentUtils.envMapToArray(builder.environment());
-    m_TimedOut    = false;
+    try {
+      m_Command = builder.command().toArray(new String[0]);
+      m_Environment = EnvironmentUtils.envMapToArray(builder.environment());
+      m_TimedOut = false;
 
-    // stderr
-    m_ReaderStdErr = configureStdErr();
-    Thread threade = new Thread(m_ReaderStdErr);
-    threade.start();
+      // stderr
+      m_ReaderStdErr = configureStdErr();
+      Thread threade = new Thread(m_ReaderStdErr);
+      threade.start();
 
-    // stdout
-    m_ReaderStdOut = configureStdOut();
-    Thread threado = new Thread(m_ReaderStdOut);
-    threado.start();
+      // stdout
+      m_ReaderStdOut = configureStdOut();
+      Thread threado = new Thread(m_ReaderStdOut);
+      threado.start();
 
-    // time out check
-    m_RunnableTimeout = null;
-    if (m_TimeOut > 0) {
-      m_RunnableTimeout = configureTimeOutMonitor();
-      Thread threadt = new Thread(m_RunnableTimeout);
-      threadt.start();
-    }
+      // time out check
+      m_RunnableTimeout = null;
+      if (m_TimeOut > 0) {
+	m_RunnableTimeout = configureTimeOutMonitor();
+	Thread threadt = new Thread(m_RunnableTimeout);
+	threadt.start();
+      }
 
-    m_Process = builder.start();
-    m_ReaderStdErr.setProcess(m_Process);
-    m_ReaderStdOut.setProcess(m_Process);
-    if (m_RunnableTimeout != null)
-      m_RunnableTimeout.setProcess(m_Process);
+      m_Process = builder.start();
+      m_ReaderStdErr.setProcess(m_Process);
+      m_ReaderStdOut.setProcess(m_Process);
+      if (m_RunnableTimeout != null)
+	m_RunnableTimeout.setProcess(m_Process);
 
-    // writing the input to the standard input of the process
-    if (input != null) {
-      BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
-	m_Process.getOutputStream()));
-      writer.write(input);
-      writer.close();
-    }
+      // writing the input to the standard input of the process
+      if (input != null) {
+	BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
+	  m_Process.getOutputStream()));
+	writer.write(input);
+	writer.close();
+      }
 
-    m_ExitCode = m_Process.waitFor();
+      m_ExitCode = m_Process.waitFor();
 
-    // wait for threads to finish
-    while (threade.isAlive() || threado.isAlive()) {
-      try {
-	synchronized (this) {
-	  wait(100);
+      // wait for threads to finish
+      while (threade.isAlive() || threado.isAlive()) {
+	try {
+	  synchronized (this) {
+	    wait(100);
+	  }
+	  if (m_TimedOut)
+	    break;
 	}
-	if (m_TimedOut)
-	  break;
+	catch (Exception e) {
+	  // ignored
+	}
       }
-      catch (Exception e) {
-	// ignored
+
+      if (m_TimedOut) {
+	if (threade.isAlive())
+	  threade.interrupt();
+	if (threado.isAlive())
+	  threado.interrupt();
       }
     }
+    finally {
+      flush();
 
-    if (m_TimedOut) {
-      if (threade.isAlive())
-	threade.interrupt();
-      if (threado.isAlive())
-	threado.interrupt();
+      m_Process = null;
     }
-
-    flush();
-
-    m_Process = null;
   }
 
   /**
@@ -206,69 +210,72 @@ public abstract class AbstractProcessOutput
    * @throws Exception	if writing to stdin fails
    */
   public void monitor(String[] cmd, String[] env, String input, Process process) throws Exception {
-    m_Command     = cmd;
-    m_Environment = env;
-    m_Process     = process;
-    m_TimedOut    = false;
+    try {
+      m_Command = cmd;
+      m_Environment = env;
+      m_Process = process;
+      m_TimedOut = false;
 
-    // stderr
-    m_ReaderStdErr = configureStdErr();
-    Thread threade = new Thread(m_ReaderStdErr);
-    threade.start();
-    m_ReaderStdErr.setProcess(m_Process);
+      // stderr
+      m_ReaderStdErr = configureStdErr();
+      Thread threade = new Thread(m_ReaderStdErr);
+      threade.start();
+      m_ReaderStdErr.setProcess(m_Process);
 
-    // stdout
-    m_ReaderStdOut = configureStdOut();
-    Thread threado = new Thread(m_ReaderStdOut);
-    threado.start();
-    m_ReaderStdOut.setProcess(m_Process);
+      // stdout
+      m_ReaderStdOut = configureStdOut();
+      Thread threado = new Thread(m_ReaderStdOut);
+      threado.start();
+      m_ReaderStdOut.setProcess(m_Process);
 
-    // time out check
-    m_RunnableTimeout = null;
-    if (m_TimeOut > 0) {
-      m_RunnableTimeout = configureTimeOutMonitor();
-      Thread threadt = new Thread(m_RunnableTimeout);
-      threadt.start();
-      m_RunnableTimeout.setProcess(m_Process);
-    }
+      // time out check
+      m_RunnableTimeout = null;
+      if (m_TimeOut > 0) {
+	m_RunnableTimeout = configureTimeOutMonitor();
+	Thread threadt = new Thread(m_RunnableTimeout);
+	threadt.start();
+	m_RunnableTimeout.setProcess(m_Process);
+      }
 
-    // writing the input to the standard input of the process
-    if (input != null) {
-      BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
-	m_Process.getOutputStream()));
-      writer.write(input);
-      writer.close();
-    }
+      // writing the input to the standard input of the process
+      if (input != null) {
+	BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
+	  m_Process.getOutputStream()));
+	writer.write(input);
+	writer.close();
+      }
 
-    m_ExitCode = m_Process.waitFor();
+      m_ExitCode = m_Process.waitFor();
 
-    // wait for threads to finish
-    while (threade.isAlive() || threado.isAlive()) {
-      try {
-	synchronized (this) {
-	  wait(100);
+      // wait for threads to finish
+      while (threade.isAlive() || threado.isAlive()) {
+	try {
+	  synchronized (this) {
+	    wait(100);
+	  }
+	  if (m_TimedOut)
+	    break;
 	}
-	if (m_TimedOut)
-	  break;
+	catch (Exception e) {
+	  // ignored
+	}
       }
-      catch (Exception e) {
-	// ignored
+
+      if (m_TimedOut) {
+	if (threade.isAlive())
+	  threade.interrupt();
+	if (threado.isAlive())
+	  threado.interrupt();
       }
     }
+    finally {
+      flush();
 
-    if (m_TimedOut) {
-      if (threade.isAlive())
-	threade.interrupt();
-      if (threado.isAlive())
-	threado.interrupt();
+      m_Process = null;
+      m_ReaderStdErr = null;
+      m_ReaderStdOut = null;
+      m_RunnableTimeout = null;
     }
-
-    flush();
-
-    m_Process         = null;
-    m_ReaderStdErr    = null;
-    m_ReaderStdOut    = null;
-    m_RunnableTimeout = null;
   }
 
   /**
@@ -286,7 +293,7 @@ public abstract class AbstractProcessOutput
   protected abstract AbstractProcessReader configureStdOut();
 
   /**
-   * Configures the runnable for watching for time outs.
+   * Configures the runnable for watching for timeouts.
    *
    * @return		the configured runnable
    */
@@ -294,7 +301,7 @@ public abstract class AbstractProcessOutput
     return new AbstractProcessRunnable() {
       @Override
       protected void doRun() {
-      long start = System.currentTimeMillis();
+	long start = System.currentTimeMillis();
 	while (m_Process.isAlive()) {
 	  try {
 	    synchronized (this) {
@@ -305,7 +312,7 @@ public abstract class AbstractProcessOutput
 	      if (((System.currentTimeMillis() - start) / 1000) >= m_TimeOut) {
 		m_TimedOut = true;
 		logError("Timeout of " + m_TimeOut + " seconds reached, terminating process...");
-		m_Process.destroy();
+		ProcessUtils.destroy(m_Process);
 		break;
 	      }
 	    }
@@ -390,7 +397,7 @@ public abstract class AbstractProcessOutput
    */
   public void destroy() {
     if (m_Process != null)
-      m_Process.destroy();
+      ProcessUtils.destroy(m_Process);
     if (m_ReaderStdErr != null)
       m_ReaderStdErr.stopExecution();
     if (m_ReaderStdOut != null)
